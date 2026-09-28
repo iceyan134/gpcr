@@ -1,16 +1,19 @@
-# Code availability wording
+# Code availability
 
-Status: the destination below is user-approved, but publication has not yet been verified. Do not use the following past/present-tense statement in the manuscript until the repository and tag are publicly accessible.
+The ReCAST-GPCR source code, Docker recipes, and supporting scripts are publicly available at https://github.com/iceyan134/gpcr (version v1.0.0; commit a8972df17bc90990865b0ef3bfc607623635107a). The release provides the research source snapshot; its scope, external dependencies, and current reproducibility limitations are documented in the repository.
 
-## Use after successful publication of v1.0.0
+## Fixed release
 
-The ReCAST-GPCR source code, Docker recipes, and supporting scripts are publicly available at https://github.com/iceyan134/gpcr (version v1.0.0). The release provides the research source snapshot; its scope, external dependencies, and current reproducibility limitations are documented in the repository.
+- Release: https://github.com/iceyan134/gpcr/releases/tag/v1.0.0
+- Source commit: https://github.com/iceyan134/gpcr/tree/a8972df17bc90990865b0ef3bfc607623635107a
+- Public release and source archive verified; all 88 original files match the supplied source by SHA-256.
+- The default branch may receive documentation updates after the fixed release.
 
-## Details to add when available
+## Author-supplied details still needed
 
-- Full commit SHA corresponding to the published tag.
-- Archival DOI, if a versioned archive is deposited.
-- Confirmed software license and copyright attribution.
-- Location of model weights, input data, manuscript-specific configurations, and expected outputs. These should be described accurately in the repository and, where appropriate, in Data availability.
+- Confirm the software license and provide copyright attribution.
+- Supply manuscript title, authors, and DOI for a citation file.
+- Provide model acquisition instructions, example inputs, manuscript-specific configurations, results, and actual figure-generation scripts for end-to-end reproduction.
+- Add an archival DOI if a versioned archive is deposited.
 
-The original statement that these materials are also included in a separate reproducibility package may be retained only after the authors confirm that package is actually supplied with the manuscript.
+Retain the manuscript statement about a separate reproducibility package only if that package is actually supplied with the manuscript.
