@@ -1,0 +1,12 @@
+FROM esmfold2:latest
+
+RUN python -m venv /opt/boltz-venv && \
+    /opt/boltz-venv/bin/pip install --no-cache-dir boltz[cuda]
+
+ENV BOLTZ_CACHE=/cache/boltz
+
+RUN mkdir -p /cache/boltz
+
+COPY docker/download_boltz_weights.py /tmp/
+RUN /opt/boltz-venv/bin/python /tmp/download_boltz_weights.py && \
+    rm /tmp/download_boltz_weights.py

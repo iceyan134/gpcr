@@ -1,0 +1,10 @@
+FROM esmfold2:latest
+RUN pip install --no-cache-dir xformers
+COPY app/drugclip_scorer.py /app/app/drugclip_scorer.py
+COPY app/drugclip_pocket.py /app/app/drugclip_pocket.py
+COPY app/cascade_config.py /app/app/cascade_config.py
+COPY app/l1_prescreen.py /app/app/l1_prescreen.py
+COPY app/cascade.py /app/app/cascade.py
+COPY app/mmgbsa.py /app/app/mmgbsa.py
+COPY app/cascade_prep.py /app/app/cascade_prep.py
+COPY app/benchmark_engine.py /app/app/benchmark_engine.py

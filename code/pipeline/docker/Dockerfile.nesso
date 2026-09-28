@@ -1,0 +1,10 @@
+FROM esmfold2:boltz
+# Install Nesso-1 from PyPI (Apache 2.0 licensed, open source)
+RUN python -m venv /opt/nesso-venv && \
+    /opt/nesso-venv/bin/pip install --no-cache-dir nesso
+
+# Environment variables for offline/reproducible execution
+ENV NESSO_CACHE=/cache/nesso
+ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+RUN mkdir -p /cache/nesso

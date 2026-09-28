@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpcr-mdscreen"
+version = "1.0.0"
+description = "Four-layer task-decoupled cascade for GPCR virtual screening from sequence"
+readme = "../README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pipeline*", "mdlayer*"]

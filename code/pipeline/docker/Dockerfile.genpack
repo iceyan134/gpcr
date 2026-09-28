@@ -1,0 +1,24 @@
+FROM esmfold2:latest
+
+# Copy GenPack (MolCRAFT) code
+COPY Pocket-Detection-of-DTWG-main/SBDD_AUG/ /app/Pocket-Detection-of-DTWG-main/SBDD_AUG/
+
+# Copy checkpoint
+COPY Pocket-Detection-of-DTWG-main/SBDD_AUG/sbdd/checkpoints/ /app/Pocket-Detection-of-DTWG-main/SBDD_AUG/sbdd/checkpoints/
+
+# Install MolCRAFT dependencies — no `|| true` (audit 2026-08-31: a masked
+# build-time install failure left the image without torch_geometric).
+# Split installs so one flaky package cannot hide another's failure.
+RUN pip install --no-cache-dir pytz easydict lmdb fire imageio meeko pyglet torchdiffeq
+RUN pip install --no-cache-dir torch-geometric
+# MolCRAFT also needs torch_scatter — no prebuilt wheel for torch 2.11 and
+# source build is incompatible, so a pure-PyTorch shim ships with the sbdd
+# package (sbdd/torch_scatter.py, native index_add ops — audit 2026-08-31).
+
+# Hard verification: build fails loudly if the SBDD stack cannot import.
+RUN python -c "import torch_geometric, lmdb, easydict, pytz; print('genpack deps OK')"
+RUN python -c "import sys; sys.path.insert(0, '/app/Pocket-Detection-of-DTWG-main/SBDD_AUG/sbdd'); import core.models.sbdd_train_loop; print('SBDDTrainLoop import OK')"
+RUN python -c "import torch; ckpt = torch.load('/app/Pocket-Detection-of-DTWG-main/SBDD_AUG/sbdd/checkpoints/last.ckpt', map_location='cpu', weights_only=False); print('ckpt keys:', len(ckpt['state_dict']))"
+
+# Update drugclip_scorer.py to use GenPack
+COPY app/drugclip_scorer.py /app/app/drugclip_scorer.py

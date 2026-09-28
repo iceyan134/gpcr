@@ -1,0 +1,32 @@
+name: Publish initial source release
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: initial-source-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish v1.0.0 without replacing an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            echo 'v1.0.0 already exists; leaving it unchanged.'
+            exit 0
+          fi
+          gh api "repos/${GH_REPO}/contents/RELEASE_NOTES.md?ref=${GITHUB_SHA}" --jq '.content' | base64 --decode > release-notes.md
+          gh release create v1.0.0 --target "$GITHUB_SHA" --title 'ReCAST-GPCR v1.0.0 — research source snapshot' --notes-file release-notes.md

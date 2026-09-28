@@ -1,0 +1,61 @@
+# OpenMM GPU 镜像：基于 NVIDIA 官方 CUDA 12.8 devel 镜像
+# 彻底解决 RTX 5090 (Blackwell SM_120) CUDA 兼容性
+#
+# 构建方法：
+#   docker build -f docker/Dockerfile.openmm-gpu -t esmfold2:openmm-gpu .
+#
+# 使用方法：
+#   docker run --rm --gpus all esmfold2:openmm-gpu python -c "
+#       from openmm import Platform
+#       print(Platform.getPlatformByName('CUDA'))
+#   "
+
+FROM nvidia/cuda:12.8.0-devel-ubuntu22.04
+
+# 系统依赖
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip \
+    cmake build-essential doxygen \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装 OpenMM（pip 版，CUDA kernels 随包分发）
+# 注：pip 的 openmm 8.6+ 包含 CUDA 支持
+# 且 CUDA 12.8 devel 镜像有完整的 CUDA 头文件和库
+WORKDIR /tmp
+RUN pip3 install --no-cache-dir openmm numpy
+
+# 验证 CUDA 平台
+RUN python3 -c "
+from openmm import Platform, System, LangevinIntegrator
+import openmm as mm
+print('OpenMM:', mm.__version__)
+for i in range(Platform.getNumPlatforms()):
+    p = Platform.getPlatform(i)
+    print(f'  {p.getName()} (speed={p.getSpeed()})')
+system = System()
+system.addParticle(1.0)
+integrator = LangevinIntegrator(300, 1.0, 0.001)
+ctx = mm.Context(system, integrator, Platform.getPlatformByName('CUDA'))
+print('CUDA: OK')
+"
+
+# 安装 mdtraj 用于轨迹分析
+RUN pip3 install --no-cache-dir mdtraj
+
+# 如果 pip openmm 不含 CUDA，回退方案：源码编译
+# （以下代码仅在 pip 版失败时需要）
+#
+# RUN cd /tmp && \
+#     wget -q https://github.com/openmm/openmm/archive/refs/tags/8.6.0.tar.gz && \
+#     tar xzf 8.6.0.tar.gz && \
+#     cd openmm-8.6.0 && mkdir build && cd build && \
+#     cmake .. \
+#         -DCMAKE_BUILD_TYPE=Release \
+#         -DOPENMM_BUILD_CUDA_LIB=ON \
+#         -DOPENMM_BUILD_OPENCL_LIB=OFF \
+#         -DCMAKE_INSTALL_PREFIX=/usr/local \
+#         -DCMAKE_CUDA_ARCHITECTURES=120 \
+#     && make -j$(nproc) && make install && make PythonInstall
+
+WORKDIR /workspace
+CMD ["python3"]
